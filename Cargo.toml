@@ -3,3 +3,6 @@ name = "adventofcode-rust"
 version = "0.1.0"
 authors = ["Toon Spin <toon.spin@gmail.com>"]
 edition = "2018"
+
+[dependencies]
+nom = "5"
