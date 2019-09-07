@@ -11,8 +11,9 @@ use std::io;
 use std::io::prelude::*;
 
 fn main() -> io::Result<()> {
-    for line in io::stdin().lock().lines() {
-    }
+    let mut input = String::new();
+    io::stdin().lock().read_to_string(&mut input).unwrap();
+    let input = &input[..];
 
     Ok(())
 }
