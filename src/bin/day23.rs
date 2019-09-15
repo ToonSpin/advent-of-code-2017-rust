@@ -190,12 +190,14 @@ fn patch_program(mut input: Vec<Instruction>) -> std::vec::Vec<Instruction> {
     let tested_register = get_second_operand_if_register(&input[13]).unwrap();
     let looping_register = get_second_operand_if_register(&input[11]).unwrap();
 
-    input[8] = Instruction::Jnz(Value::Literal(1), Value::Literal(24));
-    input[9] = Instruction::Set(looping_register, Value::Literal(3));
     input[11] = Instruction::Set(utility_register, Value::Register(tested_register));
     input[12] = Instruction::Mod(utility_register, Value::Register(looping_register));
     input[13] = Instruction::Jnz(Value::Register(utility_register), Value::Literal(7));
     input[14] = Instruction::Jnz(Value::Literal(1), Value::Literal(11));
+    input[22] = Instruction::Sub(utility_register, Value::Literal(499));
+
+    input[8] = Instruction::Jnz(Value::Literal(1), Value::Literal(24));
+    input[9] = Instruction::Set(looping_register, Value::Literal(3));
     input[20] = Instruction::Sub(looping_register, Value::Literal(-2));
     input[24] = Instruction::Jnz(Value::Literal(1), Value::Literal(2));
     input[29] = Instruction::Jnz(Value::Literal(1), Value::Literal(1000));
