@@ -131,8 +131,8 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("The maximum value of any register after visiting all instructions: {:?}", registers.values().max().unwrap());
-    println!("The maximum value of any register at any time: {:?}", max_reg_val);
+    println!("The maximum value of any register after visiting all instructions: {}", registers.values().max().unwrap());
+    println!("The maximum value of any register at any time: {}", max_reg_val);
 
     Ok(())
 }
