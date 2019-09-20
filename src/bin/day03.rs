@@ -15,6 +15,21 @@ fn value_to_write(cells: &HashMap<(i32, i32), u32>, coords: (i32, i32)) -> u32 {
     v
 }
 
+fn max_for_tier(n: i32) -> i32 {
+    let n = 2 * n + 1;
+    n * n
+}
+
+fn tier(n: i32) -> i32 {
+    (n as f32 * 0.25).sqrt().ceil() as i32
+}
+
+fn distance_from_origin(n: i32) -> i32 {
+    let tier = tier(n);
+    let n = n - max_for_tier(tier - 1);
+    (n % (tier * 2) - tier).abs() + tier
+}
+
 fn main() -> io::Result<()> {
     let mut input: u32 = 0;
 
@@ -24,6 +39,8 @@ fn main() -> io::Result<()> {
     for line in io::stdin().lock().lines() {
         input = line.unwrap().parse().unwrap();
     }
+
+    println!("Steps required to carry the data to the access port: {}", distance_from_origin(input as i32));
 
     let mut current_coords = (1, 0);
     let mut current_value;
@@ -95,7 +112,7 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("{:?}", current_value);
+    println!("The first value written that is larger than the input: {}", current_value);
 
     Ok(())
 }
