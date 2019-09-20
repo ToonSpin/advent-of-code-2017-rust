@@ -2,16 +2,29 @@ use std::io;
 use std::io::prelude::*;
 
 #[derive(Debug)]
-struct Passphrase {
-    words: Vec<[u8; 26]>,
+struct Passphrase<'a> {
+    phrase: Vec<&'a str>,
+    signatures: Vec<[u8; 26]>,
 }
 
-impl Passphrase {
-    fn is_valid(&self) -> bool {
-        let l = self.words.len();
+impl<'a> Passphrase<'a> {
+    fn is_valid_part1(&self) -> bool {
+        let l = self.phrase.len();
         for p in 0..l {
             for q in p + 1..l {
-                if self.words[p] == self.words[q] {
+                if self.phrase[p] == self.phrase[q] {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
+    fn is_valid_part2(&self) -> bool {
+        let l = self.signatures.len();
+        for p in 0..l {
+            for q in p + 1..l {
+                if self.signatures[p] == self.signatures[q] {
                     return false;
                 }
             }
@@ -29,12 +42,13 @@ impl Passphrase {
 
     fn new(s: &str) -> Passphrase {
         let phrase: Vec<&str> = s.split(' ').collect();
-        let mut words = Vec::new();
+        let mut signatures = Vec::new();
         for word in phrase.iter() {
-            words.push(Self::get_signature(word));
+            signatures.push(Self::get_signature(word));
         }
         Passphrase {
-            words,
+            phrase,
+            signatures,
         }
     }
 }
@@ -44,12 +58,11 @@ fn main() -> io::Result<()> {
     for line in io::stdin().lock().lines() {
         input.push(line.unwrap());
     }
-    let mut count = 0;
-    for line in input.iter_mut() {
-        if Passphrase::new(line).is_valid() {
-            count += 1;
-        }
-    }
-    println!("Number of valid passphrases in input: {:?}", count);
+
+    let passphrases: Vec<Passphrase> = input.iter_mut().map(|line| Passphrase::new(line)).collect();
+
+    println!("Number of valid passphrases in input (part 1): {}", passphrases.iter().filter(|p| p.is_valid_part1()).count());
+    println!("Number of valid passphrases in input (part 2): {}", passphrases.iter().filter(|p| p.is_valid_part2()).count());
+
     Ok(())
 }
