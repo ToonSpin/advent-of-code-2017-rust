@@ -46,10 +46,7 @@ impl<'a> Passphrase<'a> {
         for word in phrase.iter() {
             signatures.push(Self::get_signature(word));
         }
-        Passphrase {
-            phrase,
-            signatures,
-        }
+        Passphrase { phrase, signatures }
     }
 }
 
@@ -61,8 +58,14 @@ fn main() -> io::Result<()> {
 
     let passphrases: Vec<Passphrase> = input.iter_mut().map(|line| Passphrase::new(line)).collect();
 
-    println!("Number of valid passphrases in input (part 1): {}", passphrases.iter().filter(|p| p.is_valid_part1()).count());
-    println!("Number of valid passphrases in input (part 2): {}", passphrases.iter().filter(|p| p.is_valid_part2()).count());
+    println!(
+        "Number of valid passphrases in input (part 1): {}",
+        passphrases.iter().filter(|p| p.is_valid_part1()).count()
+    );
+    println!(
+        "Number of valid passphrases in input (part 2): {}",
+        passphrases.iter().filter(|p| p.is_valid_part2()).count()
+    );
 
     Ok(())
 }

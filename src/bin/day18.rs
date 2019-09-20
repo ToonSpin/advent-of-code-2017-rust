@@ -8,9 +8,9 @@ use nom::{
     bytes::complete::tag,
     character::complete::{digit1, one_of},
     combinator::{map, map_res, opt, recognize},
-    IResult,
     multi::separated_list,
     sequence::{pair, preceded, separated_pair, tuple},
+    IResult,
 };
 
 type Register = char;
@@ -25,10 +25,8 @@ enum Value {
 impl Value {
     fn resolve(&self, registers: &HashMap<Register, Number>) -> Number {
         match self {
-            Value::Register(r) => {
-                *registers.get(r).unwrap_or(&0)
-            },
-            Value::Literal(n) => *n
+            Value::Register(r) => *registers.get(r).unwrap_or(&0),
+            Value::Literal(n) => *n,
         }
     }
 }
@@ -60,7 +58,10 @@ fn parse_value(input: &str) -> IResult<&str, Value> {
 }
 
 fn parse_instruction_val_val(input: &str) -> IResult<&str, Instruction> {
-    let parse_instr = preceded(tag("jgz "), separated_pair(parse_value, tag(" "), parse_value));
+    let parse_instr = preceded(
+        tag("jgz "),
+        separated_pair(parse_value, tag(" "), parse_value),
+    );
     let (rest, (v1, v2)) = parse_instr(input)?;
     Ok((rest, Instruction::Jgz(v1, v2)))
 }
@@ -70,14 +71,14 @@ fn parse_instruction_reg_val(input: &str) -> IResult<&str, Instruction> {
     let (rest, (opcode, r, v)) = tuple((
         parse_opcode,
         preceded(tag(" "), parse_register),
-        preceded(tag(" "), parse_value)
+        preceded(tag(" "), parse_value),
     ))(input)?;
     let instruction = match opcode {
         "set" => Instruction::Set(r, v),
         "add" => Instruction::Add(r, v),
         "mul" => Instruction::Mul(r, v),
         "mod" => Instruction::Mod(r, v),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
     Ok((rest, instruction))
 }
@@ -108,7 +109,7 @@ fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
 enum ProgramState {
     Running,
     WaitingForMessage,
-    Terminated
+    Terminated,
 }
 
 struct Program {
@@ -204,12 +205,10 @@ impl Program {
     }
 }
 
-
 fn main() -> io::Result<()> {
     let mut input = String::new();
     io::stdin().lock().read_to_string(&mut input).unwrap();
     let input = &input[..];
-
 
     let (_rest, input) = parse_instructions(input).unwrap();
 
@@ -218,8 +217,8 @@ fn main() -> io::Result<()> {
     let mut p1_send_counter = 0;
 
     loop {
-        if let ProgramState::WaitingForMessage =  p0.state {
-            if let ProgramState::WaitingForMessage =  p1.state {
+        if let ProgramState::WaitingForMessage = p0.state {
+            if let ProgramState::WaitingForMessage = p1.state {
                 p0.terminate();
                 p1.terminate();
             }

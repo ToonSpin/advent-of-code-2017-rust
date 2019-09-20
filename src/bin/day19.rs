@@ -8,7 +8,7 @@ enum Direction {
     North,
     South,
     East,
-    West
+    West,
 }
 
 impl Direction {
@@ -17,7 +17,7 @@ impl Direction {
             Direction::North => Direction::South,
             Direction::South => Direction::North,
             Direction::East => Direction::West,
-            Direction::West => Direction::East
+            Direction::West => Direction::East,
         }
     }
 }
@@ -26,7 +26,11 @@ fn main() -> io::Result<()> {
     let mut input = String::new();
     io::stdin().lock().read_to_string(&mut input).unwrap();
     let input = &input[..];
-    let input: Vec<Vec<char>> = input.split("\n").filter(|s| s.len() > 1).map(|s| s.chars().collect()).collect();
+    let input: Vec<Vec<char>> = input
+        .split("\n")
+        .filter(|s| s.len() > 1)
+        .map(|s| s.chars().collect())
+        .collect();
 
     let mut coords = (0, 0);
     let mut dir = Direction::South;
@@ -61,17 +65,23 @@ fn main() -> io::Result<()> {
                 }
             }
             ' ' => unreachable!(),
-            c if is_alphabetic(c as u8) => {
-                letters.push(c)
-            }
+            c if is_alphabetic(c as u8) => letters.push(c),
             _ => {}
         }
 
         match dir {
-            Direction::North => { coords.1 -= 1; },
-            Direction::East => { coords.0 += 1; },
-            Direction::South => { coords.1 += 1; },
-            Direction::West => { coords.0 -= 1; },
+            Direction::North => {
+                coords.1 -= 1;
+            }
+            Direction::East => {
+                coords.0 += 1;
+            }
+            Direction::South => {
+                coords.1 += 1;
+            }
+            Direction::West => {
+                coords.0 -= 1;
+            }
         }
         step_count += 1;
     }

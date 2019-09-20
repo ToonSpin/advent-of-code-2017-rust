@@ -7,23 +7,23 @@ use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, digit1},
     combinator::{map_res, opt},
-    IResult,
     multi::separated_list,
     sequence::{preceded, terminated},
+    IResult,
 };
 
 struct Program<'a> {
     name: &'a str,
     weight: i32,
-    children: Vec<&'a str>
+    children: Vec<&'a str>,
 }
 
 fn parse_name(input: &str) -> IResult<&str, &str> {
-    return alpha1(input)
+    return alpha1(input);
 }
 
 fn parse_weight(input: &str) -> IResult<&str, i32> {
-    return map_res(digit1, str::parse::<i32>)(input)
+    return map_res(digit1, str::parse::<i32>)(input);
 }
 
 fn parse_name_list(input: &str) -> IResult<&str, Vec<&str>> {
@@ -42,11 +42,14 @@ fn parse_program(input: &str) -> IResult<&str, Program> {
     let (input, weight) = terminated(parse_weight, tag(")"))(input)?;
     let (input, children) = parse_name_list(input)?;
 
-    Ok((input, Program {
-        name,
-        weight,
-        children
-    }))
+    Ok((
+        input,
+        Program {
+            name,
+            weight,
+            children,
+        },
+    ))
 }
 
 fn get_combined_weight(p: &str, programs: &HashMap<&str, Program>) -> i32 {
@@ -58,7 +61,10 @@ fn get_combined_weight(p: &str, programs: &HashMap<&str, Program>) -> i32 {
     weight
 }
 
-fn get_unbalanced_child<'a> (p: &'a str, programs: &'a HashMap<&'a str, Program>) -> Option<(&'a str, i32)> {
+fn get_unbalanced_child<'a>(
+    p: &'a str,
+    programs: &'a HashMap<&'a str, Program>,
+) -> Option<(&'a str, i32)> {
     let mut found_weights: HashMap<i32, &str> = HashMap::new();
     let mut balanced_weight: i32 = 0;
 
@@ -124,7 +130,11 @@ fn main() -> io::Result<()> {
         difference = wd;
     }
 
-    println!("To balance the programs, program {} needs to weigh {}", current_program, programs.get(current_program).unwrap().weight + difference);
+    println!(
+        "To balance the programs, program {} needs to weigh {}",
+        current_program,
+        programs.get(current_program).unwrap().weight + difference
+    );
 
     Ok(())
 }

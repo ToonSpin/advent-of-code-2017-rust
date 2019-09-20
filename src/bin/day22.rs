@@ -7,15 +7,15 @@ use nom::{
     branch::alt,
     character::complete::char,
     combinator::value,
+    multi::{many1, separated_list},
     IResult,
-    multi::{many1, separated_list}
 };
 
 enum Direction {
     North,
     East,
     South,
-    West
+    West,
 }
 use Direction::*;
 
@@ -41,7 +41,7 @@ impl Direction {
             North => South,
             East => West,
             South => North,
-            West => East
+            West => East,
         }
     }
     fn move_forward(&self, coords: &(i32, i32)) -> (i32, i32) {
@@ -59,11 +59,14 @@ enum CellState {
     Clean,
     Infected,
     Weakened,
-    Flagged
+    Flagged,
 }
 
 fn parse_cell_state(input: &str) -> IResult<&str, CellState> {
-    alt((value(CellState::Infected, char('#')), value(CellState::Clean, char('.'))))(input)
+    alt((
+        value(CellState::Infected, char('#')),
+        value(CellState::Clean, char('.')),
+    ))(input)
 }
 
 fn parse_input(input: &str) -> IResult<&str, Vec<Vec<CellState>>> {
@@ -91,8 +94,16 @@ fn iterate(num_bursts: u64, input: &Vec<Vec<CellState>>, part2: bool) -> u64 {
 
     let mut infections_count = 0;
 
-    let clean_transition_state = if part2 { CellState::Weakened } else { CellState::Infected };
-    let infected_transition_state = if part2 { CellState::Flagged } else { CellState::Clean };
+    let clean_transition_state = if part2 {
+        CellState::Weakened
+    } else {
+        CellState::Infected
+    };
+    let infected_transition_state = if part2 {
+        CellState::Flagged
+    } else {
+        CellState::Clean
+    };
 
     for _iteration in 0..num_bursts {
         match nodes.entry(current_coords).or_insert(CellState::Clean) {
@@ -128,8 +139,14 @@ fn main() -> io::Result<()> {
 
     let (_rest, input) = parse_input(input).unwrap();
 
-    println!("Number of infections after 10000 iterations: {}", iterate(10000, &input, false));
-    println!("Number of infections after 10000000 iterations: {}", iterate(10_000_000, &input, true));
+    println!(
+        "Number of infections after 10000 iterations: {}",
+        iterate(10000, &input, false)
+    );
+    println!(
+        "Number of infections after 10000000 iterations: {}",
+        iterate(10_000_000, &input, true)
+    );
 
     Ok(())
 }

@@ -8,9 +8,9 @@ use nom::{
     bytes::complete::tag,
     character::complete::{digit1, one_of},
     combinator::{map, map_res, opt, recognize},
-    IResult,
     multi::separated_list,
     sequence::{pair, preceded, separated_pair, tuple},
+    IResult,
 };
 
 type Register = char;
@@ -25,10 +25,8 @@ enum Value {
 impl Value {
     fn resolve(&self, registers: &HashMap<Register, Number>) -> Number {
         match self {
-            Value::Register(r) => {
-                *registers.get(r).unwrap_or(&0)
-            },
-            Value::Literal(n) => *n
+            Value::Register(r) => *registers.get(r).unwrap_or(&0),
+            Value::Literal(n) => *n,
         }
     }
 }
@@ -58,7 +56,8 @@ fn parse_value(input: &str) -> IResult<&str, Value> {
 }
 
 fn parse_instruction_val_val(input: &str) -> IResult<&str, Instruction> {
-    let parse_instr = preceded(tag("jnz "), separated_pair(parse_value, tag(" "), parse_value));
+    let parse_instr = separated_pair(parse_value, tag(" "), parse_value);
+    let parse_instr = preceded(tag("jnz "), parse_instr);
     let (rest, (v1, v2)) = parse_instr(input)?;
     Ok((rest, Instruction::Jnz(v1, v2)))
 }
@@ -68,23 +67,20 @@ fn parse_instruction_reg_val(input: &str) -> IResult<&str, Instruction> {
     let (rest, (opcode, r, v)) = tuple((
         parse_opcode,
         preceded(tag(" "), parse_register),
-        preceded(tag(" "), parse_value)
+        preceded(tag(" "), parse_value),
     ))(input)?;
     let instruction = match opcode {
         "set" => Instruction::Set(r, v),
         "sub" => Instruction::Sub(r, v),
         "mul" => Instruction::Mul(r, v),
         "mod" => Instruction::Mod(r, v),
-        _ => unreachable!()
+        _ => unreachable!(),
     };
     Ok((rest, instruction))
 }
 
 fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
-    alt((
-        parse_instruction_val_val,
-        parse_instruction_reg_val,
-    ))(input)
+    alt((parse_instruction_val_val, parse_instruction_reg_val))(input)
 }
 
 fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
@@ -93,7 +89,7 @@ fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
 
 enum ProgramState {
     Running,
-    Terminated
+    Terminated,
 }
 
 struct Program {
@@ -165,7 +161,13 @@ impl Program {
 }
 
 fn get_second_operand_if_register(i: &Instruction) -> Option<Register> {
-    let f = |v: &Value| if let Value::Register(r) = v { Some(*r) } else { None };
+    let f = |v: &Value| {
+        if let Value::Register(r) = v {
+            Some(*r)
+        } else {
+            None
+        }
+    };
     match i {
         Instruction::Set(_r, v) => f(v),
         Instruction::Sub(_r, v) => f(v),
@@ -202,9 +204,15 @@ fn patch_program(mut input: Vec<Instruction>) -> std::vec::Vec<Instruction> {
     input[24] = Instruction::Jnz(Value::Literal(1), Value::Literal(2));
     input[29] = Instruction::Jnz(Value::Literal(1), Value::Literal(1000));
 
-    input.push(Instruction::Set(utility_register, Value::Register(tested_register)));
+    input.push(Instruction::Set(
+        utility_register,
+        Value::Register(tested_register),
+    ));
     input.push(Instruction::Mod(utility_register, Value::Literal(2)));
-    input.push(Instruction::Jnz(Value::Register(utility_register), Value::Literal(-25)));
+    input.push(Instruction::Jnz(
+        Value::Register(utility_register),
+        Value::Literal(-25),
+    ));
     input.push(Instruction::Jnz(Value::Literal(1), Value::Literal(-10)));
 
     input
@@ -219,11 +227,17 @@ fn main() -> io::Result<()> {
 
     let mut p = Program::new(input.clone(), false);
     p.run();
-    println!("The number of times the mul instruction is called in debug mode: {}", p.mul_count);
+    println!(
+        "The number of times the mul instruction is called in debug mode: {}",
+        p.mul_count
+    );
 
     let mut p = Program::new(patch_program(input), true);
     p.run();
-    println!("The value of the h register after the program ends: {}", p.registers.get(&'h').unwrap());
+    println!(
+        "The value of the h register after the program ends: {}",
+        p.registers.get(&'h').unwrap()
+    );
 
     Ok(())
 }

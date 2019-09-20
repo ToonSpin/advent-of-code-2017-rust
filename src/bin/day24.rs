@@ -2,15 +2,15 @@ use std::io;
 use std::io::prelude::*;
 
 use std::cmp::Ordering;
-use std::collections::{HashSet, HashMap};
+use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
 
 use nom::{
     character::complete::{char, digit1},
     combinator::{map, map_res},
-    IResult,
     multi::separated_list,
     sequence::separated_pair,
+    IResult,
 };
 
 type Port = u8;
@@ -25,7 +25,11 @@ struct Component {
 
 impl Component {
     fn other_port(&self, p: Port) -> Port {
-        if self.p0 == p { self.p1 } else { self.p0 }
+        if self.p0 == p {
+            self.p1
+        } else {
+            self.p0
+        }
     }
 
     fn next_port(v: &Vec<Component>) -> Port {
@@ -50,7 +54,12 @@ impl Component {
         let p1 = b.other_port(common_port);
         let strength = a.strength + b.strength;
         let length = a.length + b.length;
-        Component { p0, p1, strength, length }
+        Component {
+            p0,
+            p1,
+            strength,
+            length,
+        }
     }
 }
 
@@ -59,7 +68,15 @@ fn parse_port(input: &str) -> IResult<&str, Port> {
 }
 
 fn parse_component(input: &str) -> IResult<&str, Component> {
-    map(separated_pair(parse_port, char('/'), parse_port), |(p0, p1)| Component { p0, p1, strength: (p0 + p1) as u32, length: 1 })(input)
+    map(
+        separated_pair(parse_port, char('/'), parse_port),
+        |(p0, p1)| Component {
+            p0,
+            p1,
+            strength: (p0 + p1) as u32,
+            length: 1,
+        },
+    )(input)
 }
 
 fn parse_components(input: &str) -> IResult<&str, Vec<Component>> {
@@ -72,7 +89,11 @@ fn strength_of_strongest_bridge(base: &Vec<Component>, input: &HashSet<Component
         return strength;
     }
 
-    let candidates: Vec<Component> = input.iter().filter(|c| c.can_be_added_to(&base)).cloned().collect();
+    let candidates: Vec<Component> = input
+        .iter()
+        .filter(|c| c.can_be_added_to(&base))
+        .cloned()
+        .collect();
     if candidates.len() == 0 {
         return strength;
     }
@@ -103,7 +124,11 @@ fn get_longest_bridge(base: &Vec<Component>, input: &HashSet<Component>) -> (u32
         return (length, strength);
     }
 
-    let candidates: Vec<Component> = input.iter().filter(|c| c.can_be_added_to(&base)).cloned().collect();
+    let candidates: Vec<Component> = input
+        .iter()
+        .filter(|c| c.can_be_added_to(&base))
+        .cloned()
+        .collect();
     if candidates.len() == 0 {
         return (length, strength);
     }
@@ -124,7 +149,11 @@ fn get_longest_bridge(base: &Vec<Component>, input: &HashSet<Component>) -> (u32
 }
 
 fn starting_points(input: &Vec<Component>) -> Vec<Component> {
-    input.iter().cloned().filter(|c| c.p0 == 0 || c.p1 == 0).collect()
+    input
+        .iter()
+        .cloned()
+        .filter(|c| c.p0 == 0 || c.p1 == 0)
+        .collect()
 }
 
 fn reduce_chains(input: &Vec<Component>) -> Vec<Component> {
@@ -133,7 +162,8 @@ fn reduce_chains(input: &Vec<Component>) -> Vec<Component> {
         *ports.entry(c.p0).or_insert(0) += 1;
         *ports.entry(c.p1).or_insert(0) += 1;
     }
-    let ports_iter = ports.iter()
+    let ports_iter = ports
+        .iter()
         .filter(|(&p, &n)| p != 0 && n == 2)
         .map(|(&p, &_n)| p);
     let ports: HashSet<Port> = HashSet::from_iter(ports_iter);
@@ -141,14 +171,21 @@ fn reduce_chains(input: &Vec<Component>) -> Vec<Component> {
     let mut output = input.clone();
     for p in ports.iter() {
         output = Vec::new();
-        let matches: Vec<Component> = input.iter().filter(|&c| c.p0 == *p || c.p1 == *p).cloned().collect();
+        let matches: Vec<Component> = input
+            .iter()
+            .filter(|&c| c.p0 == *p || c.p1 == *p)
+            .cloned()
+            .collect();
         output.push(Component::join(&matches[0], &matches[1], *p));
         for c in input.iter().filter(|&c| c.p0 != *p && c.p1 != *p) {
             output.push(*c);
         }
     }
-    if ports.len() > 0 { reduce_chains(&output) } else { output }
-    
+    if ports.len() > 0 {
+        reduce_chains(&output)
+    } else {
+        output
+    }
 }
 
 fn main() -> io::Result<()> {
@@ -173,8 +210,14 @@ fn main() -> io::Result<()> {
 
     let best_bridge = longest_bridges.iter().max_by(compare_bridges);
 
-    println!("The strength of the strongest bridge that can be built: {}", max_strength);
-    println!("The strength of the longest bridge that can be built: {}", best_bridge.unwrap().1);
+    println!(
+        "The strength of the strongest bridge that can be built: {}",
+        max_strength
+    );
+    println!(
+        "The strength of the longest bridge that can be built: {}",
+        best_bridge.unwrap().1
+    );
 
     Ok(())
 }

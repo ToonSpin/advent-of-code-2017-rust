@@ -103,7 +103,7 @@ fn find_region_in_grid(grid: &Vec<Vec<u8>>) -> Option<(u8, u8)> {
     for (y, row) in grid.iter().enumerate() {
         for (x, _cell) in row.iter().enumerate() {
             if grid[y][x] > 0 {
-                return Some((x as u8, y as u8))
+                return Some((x as u8, y as u8));
             }
         }
     }

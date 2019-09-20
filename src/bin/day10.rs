@@ -52,7 +52,9 @@ fn get_dense_hash(input: &str) -> Vec<u8> {
 
 fn knot_hash(input: &str) -> String {
     let mut s = String::new();
-    let chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+    let chars = [
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
+    ];
 
     let v = get_dense_hash(input);
 
@@ -74,10 +76,16 @@ fn main() -> io::Result<()> {
     io::stdin().lock().read_to_string(&mut input).unwrap();
     let input = &input[..];
 
-    let input_part1: Vec<u8> = input.split(',').map(|s| str::parse::<u8>(s).unwrap()).collect();
+    let input_part1: Vec<u8> = input
+        .split(',')
+        .map(|s| str::parse::<u8>(s).unwrap())
+        .collect();
     let numbers = hash_rounds(&input_part1, 1);
 
-    println!("The product of the first two numbers after the first round: {}", numbers[0] as u16 * numbers[1] as u16);
+    println!(
+        "The product of the first two numbers after the first round: {}",
+        numbers[0] as u16 * numbers[1] as u16
+    );
     println!("The knot hash of the input is: {}", knot_hash(input));
 
     Ok(())

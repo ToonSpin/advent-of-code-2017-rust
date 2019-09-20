@@ -23,8 +23,14 @@ fn main() -> io::Result<()> {
         input.push(line.unwrap().parse().unwrap());
     }
 
-    println!("Number of steps to reach the exit (part 1): {}", get_number_of_steps(&input, false));
-    println!("Number of steps to reach the exit (part 2): {}", get_number_of_steps(&input, true));
+    println!(
+        "Number of steps to reach the exit (part 1): {}",
+        get_number_of_steps(&input, false)
+    );
+    println!(
+        "Number of steps to reach the exit (part 2): {}",
+        get_number_of_steps(&input, true)
+    );
 
     Ok(())
 }

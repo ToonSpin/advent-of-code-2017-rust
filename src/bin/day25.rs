@@ -9,9 +9,9 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char, digit1, one_of},
     combinator::{map, map_res, value},
-    IResult,
     multi::separated_list,
     sequence::{delimited, pair, preceded, separated_pair, tuple},
+    IResult,
 };
 
 type State = char;
@@ -65,7 +65,12 @@ impl TuringMachine {
         tape.push_back(Value::Zero);
         let pos = 0;
         let state = state;
-        TuringMachine { rules, tape, pos, state }
+        TuringMachine {
+            rules,
+            tape,
+            pos,
+            state,
+        }
     }
 
     fn move_left(&mut self) {
@@ -92,13 +97,20 @@ impl TuringMachine {
         self.tape[self.pos] = instruction.value_to_write;
         self.state = instruction.next_state;
         match instruction.direction_to_move {
-            Direction::Left => { self.move_left(); }
-            Direction::Right => { self.move_right(); }
+            Direction::Left => {
+                self.move_left();
+            }
+            Direction::Right => {
+                self.move_right();
+            }
         }
     }
 
     fn diagnostic_checksum(&self) -> usize {
-        self.tape.iter().filter(|&v| if let Value::One = *v { true } else { false }).count()
+        self.tape
+            .iter()
+            .filter(|&v| if let Value::One = *v { true } else { false })
+            .count()
     }
 }
 
@@ -107,7 +119,11 @@ fn parse_val_inst(input: &str) -> IResult<&str, Value> {
 }
 
 fn parse_dir_inst(input: &str) -> IResult<&str, Direction> {
-    delimited(tag("    - Move one slot to the "), parse_direction, tag(".\n"))(input)
+    delimited(
+        tag("    - Move one slot to the "),
+        parse_direction,
+        tag(".\n"),
+    )(input)
 }
 
 fn parse_state_inst(input: &str) -> IResult<&str, State> {
@@ -133,7 +149,10 @@ fn parse_one_value_instruction(input: &str) -> IResult<&str, Instruction> {
 
 fn parse_rule(input: &str) -> IResult<&str, (State, Rule)> {
     let rule_parser = pair(parse_zero_value_instruction, parse_one_value_instruction);
-    let rule_parser = map(rule_parser, |(i0, i1)| Rule{ instr_zero: i0, instr_one: i1 });
+    let rule_parser = map(rule_parser, |(i0, i1)| Rule {
+        instr_zero: i0,
+        instr_one: i1,
+    });
     pair(parse_state_specifier, rule_parser)(input)
 }
 
@@ -146,7 +165,10 @@ fn parse_value(input: &str) -> IResult<&str, Value> {
 }
 
 fn parse_direction(input: &str) -> IResult<&str, Direction> {
-    alt((value(Direction::Left, tag("left")), value(Direction::Right, tag("right"))))(input)
+    alt((
+        value(Direction::Left, tag("left")),
+        value(Direction::Right, tag("right")),
+    ))(input)
 }
 
 fn parse_state(input: &str) -> IResult<&str, State> {
@@ -158,7 +180,11 @@ fn parse_u64(input: &str) -> IResult<&str, u64> {
 }
 
 fn parse_prelude(input: &str) -> IResult<&str, (State, u64)> {
-    let parser = separated_pair(parse_state, tag(".\nPerform a diagnostic checksum after "), parse_u64);
+    let parser = separated_pair(
+        parse_state,
+        tag(".\nPerform a diagnostic checksum after "),
+        parse_u64,
+    );
     delimited(tag("Begin in state "), parser, tag(" steps.\n\n"))(input)
 }
 
@@ -181,7 +207,11 @@ fn main() -> io::Result<()> {
         machine.iterate();
     }
 
-    println!("The diagnostic checksum after {} steps: {}", num_steps, machine.diagnostic_checksum());
+    println!(
+        "The diagnostic checksum after {} steps: {}",
+        num_steps,
+        machine.diagnostic_checksum()
+    );
 
     Ok(())
 }

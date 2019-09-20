@@ -8,14 +8,14 @@ use nom::{
     bytes::complete::tag,
     character::complete::{alpha1, digit1},
     combinator::{map, map_res, opt, recognize},
-    IResult,
     multi::separated_list,
     sequence::{pair, terminated},
+    IResult,
 };
 
 enum ModificationOperator {
     Inc,
-    Dec
+    Dec,
 }
 use ModificationOperator::*;
 
@@ -45,12 +45,12 @@ impl<'a> Instruction<'a> {
             None => 0,
         };
         match self.cmp_op {
-            Eq  => reg_val == self.cmp_val,
+            Eq => reg_val == self.cmp_val,
             Neq => reg_val != self.cmp_val,
-            Gt  => reg_val >  self.cmp_val,
-            Lt  => reg_val <  self.cmp_val,
-            Ge  => reg_val >= self.cmp_val,
-            Le  => reg_val <= self.cmp_val,
+            Gt => reg_val > self.cmp_val,
+            Lt => reg_val < self.cmp_val,
+            Ge => reg_val >= self.cmp_val,
+            Le => reg_val <= self.cmp_val,
         }
     }
 }
@@ -59,7 +59,7 @@ fn parse_mod_op(input: &str) -> IResult<&str, ModificationOperator> {
     let f = |s| match s {
         "inc" => Inc,
         "dec" => Dec,
-        _ => unreachable!()
+        _ => unreachable!(),
     };
     map(alt((tag("inc"), tag("dec"))), f)(input)
 }
@@ -68,13 +68,23 @@ fn parse_cmp_op(input: &str) -> IResult<&str, ComparisonOperator> {
     let f = |s| match s {
         "==" => Eq,
         "!=" => Neq,
-        ">"  => Gt,
-        "<"  => Lt,
+        ">" => Gt,
+        "<" => Lt,
         ">=" => Ge,
         "<=" => Le,
-        _ => unreachable!()
+        _ => unreachable!(),
     };
-    map(alt((tag("=="), tag("!="), tag(">="), tag("<="), tag(">"), tag("<"))), f)(input)
+    map(
+        alt((
+            tag("=="),
+            tag("!="),
+            tag(">="),
+            tag("<="),
+            tag(">"),
+            tag("<"),
+        )),
+        f,
+    )(input)
 }
 
 fn parse_i32(input: &str) -> IResult<&str, i32> {
@@ -91,14 +101,17 @@ fn parse_instruction(input: &str) -> IResult<&str, Instruction> {
     let (input, cmp_op) = terminated(parse_cmp_op, tag(" "))(input)?;
     let (input, cmp_val) = parse_i32(input)?;
 
-    Ok((input, Instruction {
-        register,
-        mod_op,
-        mod_val,
-        cmp_register,
-        cmp_op,
-        cmp_val
-    }))
+    Ok((
+        input,
+        Instruction {
+            register,
+            mod_op,
+            mod_val,
+            cmp_register,
+            cmp_op,
+            cmp_val,
+        },
+    ))
 }
 
 fn parse_instructions(input: &str) -> IResult<&str, Vec<Instruction>> {
@@ -131,8 +144,14 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("The maximum value of any register after visiting all instructions: {}", registers.values().max().unwrap());
-    println!("The maximum value of any register at any time: {}", max_reg_val);
+    println!(
+        "The maximum value of any register after visiting all instructions: {}",
+        registers.values().max().unwrap()
+    );
+    println!(
+        "The maximum value of any register at any time: {}",
+        max_reg_val
+    );
 
     Ok(())
 }

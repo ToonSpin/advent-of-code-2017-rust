@@ -5,9 +5,9 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char, digit1},
     combinator::{map, map_res, opt, recognize},
-    IResult,
     multi::separated_list,
     sequence::{delimited, pair, preceded, tuple},
+    IResult,
 };
 
 use std::collections::HashMap;
@@ -16,12 +16,12 @@ use std::ops::Sub;
 type Coord = i64;
 
 #[derive(Clone, Eq, PartialEq)]
-struct Coords (Coord, Coord, Coord);
+struct Coords(Coord, Coord, Coord);
 
 impl Sub for Coords {
     type Output = Self;
     fn sub(self, other: Self) -> Self::Output {
-        Coords (self.0 - other.0, self.1 - other.1, self.2 - other.2)
+        Coords(self.0 - other.0, self.1 - other.1, self.2 - other.2)
     }
 }
 
@@ -29,12 +29,12 @@ impl Sub for Coords {
 struct Particle {
     p: Coords,
     v: Coords,
-    a: Coords
+    a: Coords,
 }
 
 impl Particle {
     fn position_at(&self, t: i64) -> Coords {
-        Coords (
+        Coords(
             self.p.0 + t * self.v.0 + t * (t + 1) * self.a.0 / 2,
             self.p.1 + t * self.v.1 + t * (t + 1) * self.a.1 / 2,
             self.p.2 + t * self.v.2 + t * (t + 1) * self.a.2 / 2,
@@ -51,7 +51,7 @@ impl Particle {
                 match earliest_collision {
                     None => {
                         earliest_collision = Some(t);
-                    },
+                    }
                     Some(u) => {
                         if u > t {
                             earliest_collision = Some(t);
@@ -81,10 +81,8 @@ fn is_perfect_square(n: i64) -> bool {
         false
     } else {
         match n % 12 {
-            0 | 1 | 4 | 9 => {
-                (n as f64).sqrt().fract() == 0.0
-            },
-            _ => false
+            0 | 1 | 4 | 9 => (n as f64).sqrt().fract() == 0.0,
+            _ => false,
         }
     }
 }
@@ -92,9 +90,17 @@ fn is_perfect_square(n: i64) -> bool {
 fn discrete_zeros(p: i64, v: i64, a: i64) -> Vec<i64> {
     if a == 0 {
         if v == 0 {
-            if p == 0 { vec![0] } else { Vec::new() }
+            if p == 0 {
+                vec![0]
+            } else {
+                Vec::new()
+            }
         } else {
-            if p % v == 0 { vec![-p / v] } else { Vec::new() }
+            if p % v == 0 {
+                vec![-p / v]
+            } else {
+                Vec::new()
+            }
         }
     } else {
         let d_4 = a + 2 * v;
@@ -130,7 +136,11 @@ fn parse_coord(input: &str) -> IResult<&str, Coord> {
 }
 
 fn parse_coords(input: &str) -> IResult<&str, Coords> {
-    let parser = tuple((parse_coord, preceded(char(','), parse_coord), preceded(char(','), parse_coord)));
+    let parser = tuple((
+        parse_coord,
+        preceded(char(','), parse_coord),
+        preceded(char(','), parse_coord),
+    ));
     let parser = map(parser, |c| Coords(c.0, c.1, c.2));
     delimited(char('<'), parser, char('>'))(input)
 }
@@ -155,8 +165,14 @@ fn main() -> io::Result<()> {
 
     let (_rest, input) = parse_particles(input).unwrap();
 
-    let part1 = input.iter().enumerate().min_by_key(|(_i, p)| (p.a.0.abs() +  p.a.1.abs() +  p.a.2.abs()));
-    println!("The particle that will stay closest to the origin in the long run: {}", part1.unwrap().0);
+    let part1 = input
+        .iter()
+        .enumerate()
+        .min_by_key(|(_i, p)| (p.a.0.abs() + p.a.1.abs() + p.a.2.abs()));
+    println!(
+        "The particle that will stay closest to the origin in the long run: {}",
+        part1.unwrap().0
+    );
 
     let mut earliest_collisions: Vec<Option<i64>> = vec![None; input.len()];
     for i in 0..input.len() {
@@ -164,11 +180,23 @@ fn main() -> io::Result<()> {
             if let Some(t) = input[i].earliest_collision(&input[j]) {
                 earliest_collisions[i] = match earliest_collisions[i] {
                     None => Some(t),
-                    Some(u) => if u > t { Some(t) } else { Some(u) },
+                    Some(u) => {
+                        if u > t {
+                            Some(t)
+                        } else {
+                            Some(u)
+                        }
+                    }
                 };
                 earliest_collisions[j] = match earliest_collisions[j] {
                     None => Some(t),
-                    Some(u) => if u > t { Some(t) } else { Some(u) },
+                    Some(u) => {
+                        if u > t {
+                            Some(t)
+                        } else {
+                            Some(u)
+                        }
+                    }
                 };
             }
         }
@@ -188,7 +216,10 @@ fn main() -> io::Result<()> {
             count -= v.len();
         }
     }
-    println!("Number of particles left after all collisions have been resolved: {}", count);
+    println!(
+        "Number of particles left after all collisions have been resolved: {}",
+        count
+    );
 
     Ok(())
 }

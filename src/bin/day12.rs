@@ -5,16 +5,16 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char as parse_char, digit1},
     combinator::map_res,
-    IResult,
     multi::separated_list,
     sequence::separated_pair,
+    IResult,
 };
 
 use std::collections::HashSet;
 
 struct Node {
     pipes: Vec<u32>,
-    visited: bool
+    visited: bool,
 }
 
 fn parse_u32(input: &str) -> IResult<&str, u32> {
@@ -27,7 +27,13 @@ fn parse_node_list(input: &str) -> IResult<&str, Vec<u32>> {
 
 fn parse_node(input: &str) -> IResult<&str, Node> {
     let (rest, (_id, pipes)) = separated_pair(parse_u32, tag(" <-> "), parse_node_list)(input)?;
-    Ok((rest, Node { pipes, visited: false }))
+    Ok((
+        rest,
+        Node {
+            pipes,
+            visited: false,
+        },
+    ))
 }
 
 fn parse_nodes(input: &str) -> IResult<&str, Vec<Node>> {
@@ -75,7 +81,10 @@ fn main() -> io::Result<()> {
         group_count += 1;
 
         if !part1_done {
-            println!("The number of programs in the group that contains program 0: {}", group.len());
+            println!(
+                "The number of programs in the group that contains program 0: {}",
+                group.len()
+            );
             part1_done = true;
         }
     }

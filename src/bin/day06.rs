@@ -53,7 +53,10 @@ fn main() -> io::Result<()> {
                 break;
             }
 
-            println!("Number of cycles before start of infinite loop: {}", num_cycles);
+            println!(
+                "Number of cycles before start of infinite loop: {}",
+                num_cycles
+            );
             states_found = HashSet::new();
             num_cycles = 0;
             part1_done = true;

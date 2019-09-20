@@ -40,7 +40,10 @@ fn main() -> io::Result<()> {
         input = line.unwrap().parse().unwrap();
     }
 
-    println!("Steps required to carry the data to the access port: {}", distance_from_origin(input as i32));
+    println!(
+        "Steps required to carry the data to the access port: {}",
+        distance_from_origin(input as i32)
+    );
 
     let mut current_coords = (1, 0);
     let mut current_value;
@@ -112,7 +115,10 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("The first value written that is larger than the input: {}", current_value);
+    println!(
+        "The first value written that is larger than the input: {}",
+        current_value
+    );
 
     Ok(())
 }

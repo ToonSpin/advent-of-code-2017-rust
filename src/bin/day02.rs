@@ -4,8 +4,8 @@ use std::io::prelude::*;
 use nom::{
     character::complete::{char, digit1},
     combinator::{map_res, verify},
-    IResult,
     multi::separated_list,
+    IResult,
 };
 
 fn parse_u32(input: &str) -> IResult<&str, u32> {

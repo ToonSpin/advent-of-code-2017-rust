@@ -19,7 +19,7 @@ impl Direction {
             "s" => Direction::S,
             "sw" => Direction::SW,
             "nw" => Direction::NW,
-            _ => unreachable!()
+            _ => unreachable!(),
         }
     }
 
@@ -72,8 +72,14 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("The shortest path to the child process has length: {}", shortest_path_length((x, y)));
-    println!("The farthest the child has ever been away from the parent is: {}", longest_path_found);
+    println!(
+        "The shortest path to the child process has length: {}",
+        shortest_path_length((x, y))
+    );
+    println!(
+        "The farthest the child has ever been away from the parent is: {}",
+        longest_path_found
+    );
 
     Ok(())
 }

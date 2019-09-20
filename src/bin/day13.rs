@@ -3,15 +3,18 @@ use std::io::prelude::*;
 
 struct Layer {
     depth: u32,
-    range: u32
+    range: u32,
 }
 
 fn caught(l: &Layer, delay: u32) -> bool {
-    return (l.depth + delay) % (2 * l.range - 2) == 0
+    return (l.depth + delay) % (2 * l.range - 2) == 0;
 }
 
 fn trip_severity(input: &Vec<Layer>, delay: u32) -> u32 {
-    input.iter().filter(|l| caught(l, delay)).fold(0, |a, e| a + e.depth * e.range)
+    input
+        .iter()
+        .filter(|l| caught(l, delay))
+        .fold(0, |a, e| a + e.depth * e.range)
 }
 
 fn trip_caught(input: &Vec<Layer>, delay: u32) -> bool {
@@ -33,14 +36,20 @@ fn main() -> io::Result<()> {
         input.push(Layer { depth, range });
     }
 
-    println!("The severity of the trip with delay 0: {}", trip_severity(&input, 0));
+    println!(
+        "The severity of the trip with delay 0: {}",
+        trip_severity(&input, 0)
+    );
 
     let mut delay = 1;
     while trip_caught(&input, delay) {
         delay += 1;
     }
 
-    println!("The smallest delay for which you don't get caught: {}", delay);
+    println!(
+        "The smallest delay for which you don't get caught: {}",
+        delay
+    );
 
     Ok(())
 }

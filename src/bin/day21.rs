@@ -8,15 +8,15 @@ use nom::{
     bytes::complete::tag,
     character::complete::char,
     combinator::{map, value, verify},
-    IResult,
     multi::{count, separated_list},
-    sequence::separated_pair
+    sequence::separated_pair,
+    IResult,
 };
 
 #[derive(Clone, Hash)]
 struct Square {
     data: Vec<Vec<u8>>,
-    size: usize
+    size: usize,
 }
 
 impl Square {
@@ -25,14 +25,11 @@ impl Square {
         for v in data.iter() {
             assert!(v.len() == size);
         }
-        Square {
-            data,
-            size
-        }
+        Square { data, size }
     }
 
     fn sum(&self) -> u64 {
-        self.data.iter().flatten().map(|n|*n as u64).sum()
+        self.data.iter().flatten().map(|n| *n as u64).sum()
     }
 
     fn compare_square_data(data1: &Vec<Vec<u8>>, data2: &Vec<Vec<u8>>, size: usize) -> bool {
@@ -61,7 +58,11 @@ impl Square {
         rotated
     }
 
-    fn compare_square_horizontal_flip(data1: &Vec<Vec<u8>>, data2: &Vec<Vec<u8>>, size: usize) -> bool {
+    fn compare_square_horizontal_flip(
+        data1: &Vec<Vec<u8>>,
+        data2: &Vec<Vec<u8>>,
+        size: usize,
+    ) -> bool {
         for row in 0..size {
             for col in 0..size {
                 if data1[row][col] != data2[row][size - col - 1] {
@@ -72,7 +73,11 @@ impl Square {
         return true;
     }
 
-    fn compare_square_vertical_flip(data1: &Vec<Vec<u8>>, data2: &Vec<Vec<u8>>, size: usize) -> bool {
+    fn compare_square_vertical_flip(
+        data1: &Vec<Vec<u8>>,
+        data2: &Vec<Vec<u8>>,
+        size: usize,
+    ) -> bool {
         for row in 0..size {
             if data1[row] != data2[size - row - 1] {
                 return false;
@@ -87,8 +92,12 @@ impl Square {
         let new_size = if total_size % 2 == 0 { 2 } else { 3 };
         let _num_squares_in_row = total_size / new_size;
 
-        let new_square = Square { data: vec![vec![0; new_size]; new_size], size: new_size };
-        let mut new_squares = vec![vec![new_square.clone(); total_size / new_size]; total_size / new_size];
+        let new_square = Square {
+            data: vec![vec![0; new_size]; new_size],
+            size: new_size,
+        };
+        let mut new_squares =
+            vec![vec![new_square.clone(); total_size / new_size]; total_size / new_size];
 
         for total_row in 0..total_size {
             for total_col in 0..total_size {
@@ -96,16 +105,17 @@ impl Square {
                 let new_sq_col = total_col / new_size;
                 let old_sq_row = total_row / old_size;
                 let old_sq_col = total_col / old_size;
-                let value = squares[old_sq_row][old_sq_col].data[total_row % old_size][total_col % old_size];
-                new_squares[new_sq_row][new_sq_col].data[total_row % new_size][total_col % new_size] = value;
+                let value = squares[old_sq_row][old_sq_col].data[total_row % old_size]
+                    [total_col % old_size];
+                new_squares[new_sq_row][new_sq_col].data[total_row % new_size]
+                    [total_col % new_size] = value;
             }
         }
         new_squares
     }
 }
 
-impl Eq for Square {
-}
+impl Eq for Square {}
 
 impl PartialEq for Square {
     fn eq(&self, other: &Self) -> bool {
@@ -144,7 +154,9 @@ fn parse_cell(input: &str) -> IResult<&str, u8> {
 
 fn parse_square(input: &str, n: usize) -> IResult<&str, Square> {
     let cell_parser = count(parse_cell, n);
-    let square_parser = verify(separated_list(char('/'), cell_parser), |v: &Vec<_>| v.len() == n);
+    let square_parser = verify(separated_list(char('/'), cell_parser), |v: &Vec<_>| {
+        v.len() == n
+    });
     map(square_parser, |v| Square::new(v))(input)
 }
 
@@ -172,7 +184,11 @@ fn parse_mappings(input: &str) -> IResult<&str, Vec<(Square, Square)>> {
     separated_list(char('\n'), alt((parse_mapping_2_3, parse_mapping_3_4)))(input)
 }
 
-fn iterate(iterations: u32, squares: &Vec<Vec<Square>>, mappings: &Vec<(Square, Square)>) -> Vec<Vec<Square>> {
+fn iterate(
+    iterations: u32,
+    squares: &Vec<Vec<Square>>,
+    mappings: &Vec<(Square, Square)>,
+) -> Vec<Vec<Square>> {
     let mut squares = squares.clone();
     for _iteration in 0..iterations {
         let mut new_set = Vec::new();
@@ -205,7 +221,13 @@ fn main() -> io::Result<()> {
     let (_dummy, start_square) = parse_square_3(".#./..#/###").unwrap();
 
     let current_set = vec![vec![start_square.clone()]];
-    println!("Sum after 5 iterations: {}", iterate(5, &current_set, &mappings).iter().flatten().fold(0, |a, e| a + e.sum()));
+    println!(
+        "Sum after 5 iterations: {}",
+        iterate(5, &current_set, &mappings)
+            .iter()
+            .flatten()
+            .fold(0, |a, e| a + e.sum())
+    );
 
     let mut cache: HashMap<Square, Vec<Square>> = HashMap::new();
     let mut current_set = vec![start_square];
@@ -221,12 +243,18 @@ fn main() -> io::Result<()> {
                 for s in result.iter().flatten() {
                     new_set.push(s.clone());
                 }
-                cache.insert(square.clone(), result.iter().flatten().map(|s| s.clone()).collect());
+                cache.insert(
+                    square.clone(),
+                    result.iter().flatten().map(|s| s.clone()).collect(),
+                );
             }
         }
         current_set = new_set;
     }
-    println!("Sum after 18 iterations: {}", current_set.iter().fold(0, |a, e| a + e.sum()));
+    println!(
+        "Sum after 18 iterations: {}",
+        current_set.iter().fold(0, |a, e| a + e.sum())
+    );
 
     Ok(())
 }

@@ -18,7 +18,10 @@ fn main() -> io::Result<()> {
         buffer.insert(current_pos, i as u32);
     }
 
-    println!("The value after 2017 is: {}", buffer[(current_pos + 1) % buffer.len()]);
+    println!(
+        "The value after 2017 is: {}",
+        buffer[(current_pos + 1) % buffer.len()]
+    );
 
     current_pos = 0;
     let mut current_after_0 = 0;
@@ -32,6 +35,9 @@ fn main() -> io::Result<()> {
         }
     }
 
-    println!("The value after 0 after 50 million iterations is: {}", current_after_0);
+    println!(
+        "The value after 0 after 50 million iterations is: {}",
+        current_after_0
+    );
     Ok(())
 }

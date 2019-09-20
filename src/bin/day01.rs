@@ -16,8 +16,14 @@ fn main() -> io::Result<()> {
     io::stdin().lock().read_to_string(&mut input).unwrap();
     let input: Vec<u8> = input.bytes().map(|b| b - b'0').collect();
 
-    println!("The solution to the first captcha is: {}", solve_captcha(&input, 1));
-    println!("The solution to the second captcha is: {}", solve_captcha(&input, input.len() / 2));
+    println!(
+        "The solution to the first captcha is: {}",
+        solve_captcha(&input, 1)
+    );
+    println!(
+        "The solution to the second captcha is: {}",
+        solve_captcha(&input, input.len() / 2)
+    );
 
     Ok(())
 }
