@@ -83,7 +83,7 @@ fn parse_components(input: &str) -> IResult<&str, Vec<Component>> {
     separated_list(char('\n'), parse_component)(input)
 }
 
-fn strength_of_strongest_bridge(base: &Vec<Component>, input: &HashSet<Component>) -> u32 {
+fn strength_of_strongest_bridge(base: &mut Vec<Component>, input: &mut HashSet<Component>) -> u32 {
     let strength = base.iter().map(|c| c.strength).sum();
     if input.len() == 0 {
         return strength;
@@ -98,13 +98,11 @@ fn strength_of_strongest_bridge(base: &Vec<Component>, input: &HashSet<Component
         return strength;
     }
 
-    let mut input = input.clone();
-    let mut base = base.clone();
     let mut max_strength = strength;
     for c in candidates.iter() {
         base.push(*c);
         input.remove(&c);
-        let strength = strength_of_strongest_bridge(&base, &input);
+        let strength = strength_of_strongest_bridge(base, input);
         if strength > max_strength {
             max_strength = strength;
         }
@@ -117,7 +115,7 @@ fn compare_bridges(a: &&(u32, u32), b: &&(u32, u32)) -> Ordering {
     a.0.cmp(&b.0).then(a.1.cmp(&b.1))
 }
 
-fn get_longest_bridge(base: &Vec<Component>, input: &HashSet<Component>) -> (u32, u32) {
+fn get_longest_bridge(base: &mut Vec<Component>, input: &mut HashSet<Component>) -> (u32, u32) {
     let strength = base.iter().map(|c| c.strength).sum();
     let length = base.iter().map(|c| c.length).sum();
     if input.len() == 0 {
@@ -133,13 +131,11 @@ fn get_longest_bridge(base: &Vec<Component>, input: &HashSet<Component>) -> (u32
         return (length, strength);
     }
 
-    let mut input = input.clone();
-    let mut base = base.clone();
     let mut longest_bridge = (length, strength);
     for c in candidates.iter() {
         base.push(*c);
         input.remove(&c);
-        let bridge = get_longest_bridge(&base, &input);
+        let bridge = get_longest_bridge(base, input);
         if let Ordering::Greater = compare_bridges(&&bridge, &&longest_bridge) {
             longest_bridge = bridge;
         }
@@ -199,13 +195,15 @@ fn main() -> io::Result<()> {
 
     let mut max_strength = 0;
     let mut longest_bridges = Vec::new();
+    let mut input_set = HashSet::from_iter(input.iter().cloned());
     for p in starting_points(&input).iter() {
-        let input_set = HashSet::from_iter(input.iter().cloned().filter(|c| c != p));
-        let strength = strength_of_strongest_bridge(&mut vec![*p], &input_set);
+        input_set.remove(p);
+        let strength = strength_of_strongest_bridge(&mut vec![*p], &mut input_set);
         if strength > max_strength {
             max_strength = strength;
         }
-        longest_bridges.push(get_longest_bridge(&mut vec![*p], &input_set));
+        longest_bridges.push(get_longest_bridge(&mut vec![*p], &mut input_set));
+        input_set.insert(*p);
     }
 
     let best_bridge = longest_bridges.iter().max_by(compare_bridges);
